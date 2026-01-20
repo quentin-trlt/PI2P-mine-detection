@@ -52,14 +52,18 @@ def create_model(model_name='mobilenetv2', num_classes=None):
 
     print(f"\nCréation du modèle: {model_name}")
 
-    # Base model
+    inputs = tf.keras.Input(shape=config.INPUT_SHAPE)
+
+    # Preprocessing spécifique
     if model_name == 'mobilenetv2':
+        x = tf.keras.applications.mobilenet_v2.preprocess_input(inputs)
         base_model = tf.keras.applications.MobileNetV2(
             input_shape=config.INPUT_SHAPE,
             include_top=False,
             weights='imagenet'
         )
     elif model_name == 'efficientnetb0':
+        x = tf.keras.applications.efficientnet.preprocess_input(inputs)
         base_model = tf.keras.applications.EfficientNetB0(
             input_shape=config.INPUT_SHAPE,
             include_top=False,
@@ -70,19 +74,7 @@ def create_model(model_name='mobilenetv2', num_classes=None):
 
     base_model.trainable = False
 
-    # Construction du modèle
-    inputs = tf.keras.Input(shape=config.INPUT_SHAPE)
-
-    # Preprocessing spécifique au modèle
-    if model_name == 'mobilenetv2':
-        x = tf.keras.applications.mobilenet_v2.preprocess_input(inputs)
-    elif model_name == 'efficientnetb0':
-        x = tf.keras.applications.efficientnet.preprocess_input(inputs)
-
-    # Base model
     x = base_model(x, training=False)
-
-    # Classification head
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
     x = tf.keras.layers.Dropout(0.3)(x)
     x = tf.keras.layers.Dense(256, activation='relu')(x)
@@ -98,7 +90,7 @@ def compile_model(model):
     """Compile le modèle avec les métriques appropriées"""
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=config.LEARNING_RATE),
-        loss='sparse_categorical_crossentropy',
+        loss='categorical_crossentropy',
         metrics=[
             'accuracy',
             tf.keras.metrics.Precision(name='precision'),
@@ -198,7 +190,7 @@ def train_model(model_name='mobilenetv2', fine_tune=True):
         # Recompiler avec learning rate plus faible
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=config.LEARNING_RATE / 10),
-            loss='sparse_categorical_crossentropy',
+            loss='categorical_crossentropy',
             metrics=[
                 'accuracy',
                 tf.keras.metrics.Precision(name='precision'),

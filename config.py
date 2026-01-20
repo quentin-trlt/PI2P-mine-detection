@@ -71,7 +71,7 @@ TARGET_RECALL = 0.95  # Objectif critique pour détection mines
 
 # Classes (sera mis à jour après téléchargement)
 CLASSES = ['cardboard', 'glass', 'metal', 'paper', 'plastic', 'trash']
-NUM_CLASSES = 6
+NUM_CLASSES = len(CLASSES)
 
 # Seed pour reproductibilité
 RANDOM_SEED = 42

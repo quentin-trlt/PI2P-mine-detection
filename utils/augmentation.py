@@ -16,16 +16,17 @@ def preprocess_image(image_path, label):
     image = tf.io.read_file(image_path)
     image = tf.image.decode_jpeg(image, channels=config.IMG_CHANNELS)
     image = tf.image.resize(image, [config.IMG_SIZE, config.IMG_SIZE])
-    image = tf.cast(image, tf.float32) / 255.0
+    image = tf.cast(image, tf.float32)
+    label = tf.one_hot(label, config.NUM_CLASSES)
     return image, label
 
 
 def augment_image(image, label):
     """Applique l'augmentation"""
     image = tf.image.random_flip_left_right(image)
-    image = tf.image.random_brightness(image, max_delta=0.2)
+    image = tf.image.random_brightness(image, max_delta=0.2 * 255.0)
     image = tf.image.random_contrast(image, lower=0.8, upper=1.2)
-    image = tf.clip_by_value(image, 0.0, 1.0)
+    image = tf.clip_by_value(image, 0.0, 255.0)
     return image, label
 
 
@@ -34,7 +35,7 @@ def preprocess_for_inference(image_path):
     image = tf.io.read_file(image_path)
     image = tf.image.decode_jpeg(image, channels=config.IMG_CHANNELS)
     image = tf.image.resize(image, [config.IMG_SIZE, config.IMG_SIZE])
-    image = tf.cast(image, tf.float32) / 255.0
+    image = tf.cast(image, tf.float32)
     return image
 
 
