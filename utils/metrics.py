@@ -30,7 +30,7 @@ def calculate_metrics(y_true, y_pred, class_names=None):
     )
 
     # Métriques par classe
-    precision_per_class, recall_per_class, f1_per_class, _ = precision_recall_fscore_support(
+    precision_per_class, recall_per_class, f1_per_class, support_per_class = precision_recall_fscore_support(
         y_true, y_pred, average=None
     )
 
@@ -48,7 +48,7 @@ def calculate_metrics(y_true, y_pred, class_names=None):
             'precision': precision_per_class[i],
             'recall': recall_per_class[i],
             'f1': f1_per_class[i],
-            'support': int(support[i]) if i < len(support) else 0
+            'support': int(support_per_class[i]) if i < len(support_per_class) else 0
         }
 
     return metrics
