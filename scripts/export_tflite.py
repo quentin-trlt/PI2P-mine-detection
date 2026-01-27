@@ -196,6 +196,7 @@ def test_inference(tflite_model_path):
 def create_inference_example(output_dir):
     """Crée un exemple de code d'inférence pour mobile"""
     example_code = '''"""
+
 Exemple d'inférence avec TFLite sur mobile
 """
 import numpy as np
