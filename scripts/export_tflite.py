@@ -192,75 +192,6 @@ def test_inference(tflite_model_path):
 
     print("\n✓ Test d'inférence réussi")
 
-
-def create_inference_example(output_dir):
-    """Crée un exemple de code d'inférence pour mobile"""
-    example_code = '''"""
-
-Exemple d'inférence avec TFLite sur mobile
-"""
-import numpy as np
-import tensorflow as tf
-from PIL import Image
-
-def load_model(model_path):
-    """Charge le modèle TFLite"""
-    interpreter = tf.lite.Interpreter(model_path=model_path)
-    interpreter.allocate_tensors()
-    return interpreter
-
-def preprocess_image(image_path, input_shape):
-    """Préprocesse une image pour l'inférence"""
-    img = Image.open(image_path).convert('RGB')
-    img = img.resize((input_shape[1], input_shape[2]))
-    img_array = np.array(img, dtype=np.uint8)  # Pour modèle quantizé
-    img_array = np.expand_dims(img_array, axis=0)
-    return img_array
-
-def predict(interpreter, image):
-    """Effectue une prédiction"""
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
-    interpreter.set_tensor(input_details[0]['index'], image)
-    interpreter.invoke()
-
-    output = interpreter.get_tensor(output_details[0]['index'])
-    return output[0]
-
-# Utilisation
-if __name__ == "__main__":
-    # Charger modèle
-    interpreter = load_model('model_int8.tflite')
-
-    # Charger labels
-    with open('labels.txt', 'r') as f:
-        labels = [line.strip() for line in f]
-
-    # Prédire
-    input_details = interpreter.get_input_details()
-    image = preprocess_image('test_image.jpg', input_details[0]['shape'])
-    predictions = predict(interpreter, image)
-
-    # Afficher résultats
-    top_idx = np.argmax(predictions)
-    print(f"Classe prédite: {labels[top_idx]}")
-    print(f"Confiance: {predictions[top_idx]:.2%}")
-
-    # Top 3
-    top3_idx = np.argsort(predictions)[-3:][::-1]
-    print("\\nTop 3:")
-    for idx in top3_idx:
-        print(f"  {labels[idx]}: {predictions[idx]:.2%}")
-'''
-
-    example_path = output_dir / 'inference_example.py'
-    with open(example_path, 'w') as f:
-        f.write(example_code)
-
-    print(f"✓ Exemple d'inférence sauvegardé: {example_path}")
-
-
 if __name__ == "__main__":
     import argparse
 
@@ -288,7 +219,4 @@ if __name__ == "__main__":
         str(model_path),
         quantize=not args.no_quantize
     )
-
-    create_inference_example(output_dir)
-
     print("\n=== Export terminé ===")
